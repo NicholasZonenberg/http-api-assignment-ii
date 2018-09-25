@@ -23,7 +23,5 @@
     "eslint-config-airbnb": "^17.1.0",
     "eslint-plugin-import": "^2.14.0"
   },
-  "dependencies": {
-    "nvm": "0.0.4"
-  }
+  "dependencies": {}
 }
