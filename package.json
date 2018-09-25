@@ -19,10 +19,8 @@
   },
   "homepage": "https://github.com/NicholasZonenberg/http-api-assignment-ii#readme",
   "devDependencies": {
+    "eslint": "^5.5.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-plugin-import": "^2.14.0"
-  },
-  "dependencies": {
-    "eslint": "^5.5.0"
   }
 }
