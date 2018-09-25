@@ -24,6 +24,6 @@
     "eslint-plugin-import": "^2.14.0"
   },
   "dependencies": {
-    "node": "^9.10.0"
+    "node": ">=9.10.0"
   }
 }
