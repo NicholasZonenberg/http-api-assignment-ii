@@ -1,5 +1,6 @@
-qs = require('querystring');
+const qs = require('querystring');
 
+const users = [];
 // function to send a json object
 const respondJSON = (request, response, status, object, type) => {
   // set status code and content type (application/json)
@@ -13,48 +14,47 @@ const respondJSON = (request, response, status, object, type) => {
 };
 
 const getUsers = (request, response) => {
-  var requestBody = '';
-  var results;
-  request.on('data', function(data) {
+  let requestBody = '';
+  let results;
+  request.on('data', (data) => {
     requestBody += data;
-  })
+  });
 
-  request.on('end', function(){
+  request.on('end', () => {
     results = qs.parse(requestBody);
     console.log(results);
-    if(results.method == 'get'){
+    if (results.method === 'get') {
       const responseJSON = {
         message: users,
         id: 'Users',
       };
-      if(results.url == 'notReal'){
+      if (results.url === 'notReal') {
         const responseJSON2 = {
-          message: "page not found"
-        }
+          message: 'page not found',
+        };
         return respondJSON(request, response, 404, responseJSON2, 'application/json');
       }
       return respondJSON(request, response, 200, responseJSON, 'application/json');
     }
-    else if(results.method == 'head'){
-      const responseJSON={};
-      if(results.url == 'notReal'){
+    if (results.method === 'head') {
+      const responseJSON = {};
+      if (results.url === 'notReal') {
         return respondJSON(request, response, 404, responseJSON, 'application/json');
       }
       return respondJSON(request, response, 200, responseJSON, 'application/json');
     }
-    return respondJSON(request, response, 200,{message:"internal Error"},'application/json')
-  })
-}
+    return respondJSON(request, response, 200, { message: 'internal Error' }, 'application/json');
+  });
+};
 
-const addUser = (request, response, params) => {
-  
-  var requestBody = '';
-  var results;
-  request.on('data', function(data) {
+const addUser = (request, response) => {
+  let requestBody = '';
+  let results;
+  request.on('data', (data) => {
     requestBody += data;
-  })
+  });
 
-  request.on('end', function(){
+  request.on('end', () => {
     results = qs.parse(requestBody);
     console.log(results);
     const responseJSON = {
@@ -62,21 +62,21 @@ const addUser = (request, response, params) => {
     };
       // if the request does not contain a valid=true query parameter
     if (results.name && results.age) {
-      for(var x = 1; x < users.length; x++){
-        if(users[x].name == results.name){
+      for (let x = 1; x < users.length; x++) {
+        if (users[x].name === results.name) {
           users[x].age = results.age;
-          responseJSON.message='';
+          responseJSON.message = '';
           console.log(users);
           return respondJSON(request, response, 204, responseJSON, 'application/json');
         }
       }
-      responseJSON.message='Success';
-      users.push({name: results.name, age: results.age})
-      console.log(users)
+      responseJSON.message = 'Success';
+      users.push({ name: results.name, age: results.age });
+      console.log(users);
       return respondJSON(request, response, 201, responseJSON, 'application/json');
     }
     return respondJSON(request, response, 400, responseJSON, 'application/json');
-  })
+  });
 };
 
 // function to show not found error
@@ -99,5 +99,3 @@ module.exports = {
   notFound,
   getUsers,
 };
-
-var users=[];
