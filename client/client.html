@@ -6,6 +6,67 @@
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
   <script type="text/babel">
+    //function to handle our xhr response
+    const handleResponse = (xhr) => {
+      //grab the content section
+      const content = document.querySelector("#content");
+      const type = xhr.getResponseHeader('content-type'); 
+      
+      const obj = JSON.parse(xhr.response);
+
+      console.log(obj);
+
+      switch(xhr.status) {
+        case 200:
+        content.innerHTML = `<b>Success</b> <br> <p id='temp'></p>`;
+        if(obj.message){
+          document.getElementById('temp').innerHTML=obj.message;
+        }
+        break;
+        case 404:
+        content.innerHTML = `<b>Page Not Found</b> <br> <p id='temp'></p>`;
+        if(obj.message){
+          document.getElementById('temp').innerHTML=obj.message;
+        }
+        break;
+        case 201:
+        content.innerHTML = `<b>Success</b> <br> <p id='temp'></p>`;
+        if(obj.message){
+          document.getElementById('temp').innerHTML=obj.message;
+        }
+        break;
+        case 204:
+        content.innerHTML = `<b>Updated</b> <br> <p id='temp'></p>`;
+        if(obj.message){
+          document.getElementById('temp').innerHTML=obj.message;
+        }
+        break;
+        case 400:
+        content.innerHTML = `<b>Invalid Input</b> <br> <p id='temp'></p>`;
+        if(obj.message){
+          document.getElementById('temp').innerHTML=obj.message;
+        }
+        break;
+      }
+    }
+
+     //function to send ajax
+     const sendAjax = (url, acceptedType) => {
+      //create a new xhr (ajax) request. 
+      //Remember that these are ASYNCHRONOUS
+      const xhr = new XMLHttpRequest();
+      //set the xhr to a GET request to a certain URL
+      xhr.open('GET', url);
+      //Set the accept headers to the desired response mime type
+      //Server does NOT have to support this. It is a gentle request.
+      xhr.setRequestHeader ("Accept", acceptedType);
+
+      //When the xhr loads, call handleResponse and pass the xhr object
+      xhr.onload = () => handleResponse(xhr);
+      
+      //send our ajax request to the server
+      xhr.send();
+    };
 
   </script>
 </head>
@@ -19,12 +80,12 @@
       <input id="ageField" type="number" name="age" min="0" max="100" step="1"/>
       <input type="submit" value="Add User" />
     </form>
-    <form id="userForm" action="/getUsers" method="get">
-      <select id='urlField'>
-        <option value='/getUsers'>/getUsers</option>
-        <option value='/notReal'>/notReal</option>
+    <form id="userForm" action="/getUsers" method="post">
+      <select id='urlField' name="url" type="text">
+        <option value='getUsers'>/getUsers</option>
+        <option value='notReal'>/notReal</option>
       </select>
-      <select id="methodSelect">
+      <select id="methodSelect" name="method" type="text">
         <option value="get">GET</option>
         <option value="head">HEAD</option>
       </select>

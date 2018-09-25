@@ -1,3 +1,5 @@
+qs = require('querystring');
+
 // function to send a json object
 const respondJSON = (request, response, status, object, type) => {
   // set status code and content type (application/json)
@@ -10,89 +12,71 @@ const respondJSON = (request, response, status, object, type) => {
   response.end();
 };
 
-// function to show a success status code
-const success = (request, response, acceptedTypes) => {
-  // message to send
-  const responseJSON = {
-    message: 'This is a successful response',
-  };
+const getUsers = (request, response) => {
+  var requestBody = '';
+  var results;
+  request.on('data', function(data) {
+    requestBody += data;
+  })
 
-  console.log(acceptedTypes);
+  request.on('end', function(){
+    results = qs.parse(requestBody);
+    console.log(results);
+    if(results.method == 'get'){
+      const responseJSON = {
+        message: users,
+        id: 'Users',
+      };
+      if(results.url == 'notReal'){
+        const responseJSON2 = {
+          message: "page not found"
+        }
+        return respondJSON(request, response, 404, responseJSON2, 'application/json');
+      }
+      return respondJSON(request, response, 200, responseJSON, 'application/json');
+    }
+    else if(results.method == 'head'){
+      const responseJSON={};
+      if(results.url == 'notReal'){
+        return respondJSON(request, response, 404, responseJSON, 'application/json');
+      }
+      return respondJSON(request, response, 200, responseJSON, 'application/json');
+    }
+    return respondJSON(request, response, 200,{message:"internal Error"},'application/json')
+  })
+}
 
-  if (acceptedTypes[0] === 'text/xml') {
-    let responseXML = '<response>';
-    responseXML = `${responseXML} <message>This is a successful response</message>`;
-    responseXML = `${responseXML} </response>`;
+const addUser = (request, response, params) => {
+  
+  var requestBody = '';
+  var results;
+  request.on('data', function(data) {
+    requestBody += data;
+  })
 
-    console.log(responseXML);
-
-    // return response passing out string and content type
-    return respondJSON(request, response, 200, responseXML, 'text/xml');
-  }
-
-  // send our json with a success status code
-  return respondJSON(request, response, 200, responseJSON, 'application/json');
-};
-
-// function to show a bad request without the correct parameters
-const badRequest = (request, response, params) => {
-  // message to send
-  const responseJSON = {
-    message: 'This request has the required parameters',
-  };
-
-  // if the request does not contain a valid=true query parameter
-  if (!params.valid || params.valid !== 'true') {
-    // set our error message
-    responseJSON.message = 'Missing valid query parameter set to true';
-    // give the error a consistent id
-    responseJSON.id = 'badRequest';
-    // return our json with a 400 bad request code
+  request.on('end', function(){
+    results = qs.parse(requestBody);
+    console.log(results);
+    const responseJSON = {
+      message: 'Invalid Input',
+    };
+      // if the request does not contain a valid=true query parameter
+    if (results.name && results.age) {
+      for(var x = 1; x < users.length; x++){
+        if(users[x].name == results.name){
+          users[x].age = results.age;
+          responseJSON.message='';
+          console.log(users);
+          return respondJSON(request, response, 204, responseJSON, 'application/json');
+        }
+      }
+      responseJSON.message='Success';
+      users.push({name: results.name, age: results.age})
+      console.log(users)
+      return respondJSON(request, response, 201, responseJSON, 'application/json');
+    }
     return respondJSON(request, response, 400, responseJSON, 'application/json');
-  }
-
-  // if the parameter is here, send json with a success status code
-  return respondJSON(request, response, 200, responseJSON, 'application/json');
-};
-
-const unauthorized = (request, response, params) => {
-  const responseJSON = {
-    message: 'This request has the required parameters',
-  };
-    // if the request does not contain a valid=true query parameter
-  if (!params.loggedIn || params.loggedIn !== 'true') {
-    // set our error message
-    responseJSON.message = 'Missing loggedIn parameter set to true';
-    // give the error a consistent id
-    responseJSON.id = 'unauthorized';
-    // return our json with a 400 bad request code
-    return respondJSON(request, response, 401, responseJSON, 'application/json');
-  }
-  return respondJSON(request, response, 401, responseJSON, 'application/json');
-};
-
-const forbidden = (request, response) => {
-  const responseJSON = {
-    message: 'You do not have access',
-    id: 'Forbidden',
-  };
-  return respondJSON(request, response, 403, responseJSON, 'application/json');
-};
-
-const internal = (request, response) => {
-  const responseJSON = {
-    message: 'Internal Server Error try again later',
-    id: 'Internal Error',
-  };
-  return respondJSON(request, response, 500, responseJSON, 'application/json');
-};
-
-const notImplemented = (request, response) => {
-  const responseJSON = {
-    message: 'a get request has not been implemented',
-    id: 'Not Implemented',
-  };
-  return respondJSON(request, response, 501, responseJSON, 'application/json');
+  })
 };
 
 // function to show not found error
@@ -111,11 +95,9 @@ const notFound = (request, response) => {
 //In this syntax, you can do getIndex:getIndex, but if they
 //are the same name, you can short handle to just getIndex, */
 module.exports = {
-  success,
-  badRequest,
+  addUser,
   notFound,
-  unauthorized,
-  forbidden,
-  notImplemented,
-  internal,
+  getUsers,
 };
+
+var users=[];
